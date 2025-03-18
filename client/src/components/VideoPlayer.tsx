@@ -38,18 +38,21 @@ export default function VideoPlayer({ video, onClose }: VideoPlayerProps) {
       return null;
     },
     enabled: !!video.isEmbedded,
-    onSuccess: (data) => {
-      if (data?.embedUrl) {
-        setEmbedUrl(data.embedUrl);
-        
-        // Update view count for embedded videos
-        if (!sessionStorage.getItem(`video-${video.id}-viewed`)) {
-          apiRequest('POST', `/api/videos/${video.id}/views`);
-          sessionStorage.setItem(`video-${video.id}-viewed`, 'true');
-        }
+    refetchOnWindowFocus: false
+  });
+  
+  // Handle successful embed URL fetch
+  useEffect(() => {
+    if (embedData?.embedUrl) {
+      setEmbedUrl(embedData.embedUrl);
+      
+      // Update view count for embedded videos
+      if (!sessionStorage.getItem(`video-${video.id}-viewed`)) {
+        apiRequest('POST', `/api/videos/${video.id}/views`);
+        sessionStorage.setItem(`video-${video.id}-viewed`, 'true');
       }
     }
-  });
+  }, [embedData, video.id]);
 
   // Format time as MM:SS
   const formatTime = (time: number) => {

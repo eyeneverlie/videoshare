@@ -38,29 +38,30 @@ export default function Header() {
           {/* Logo and Main Navigation */}
           <div className="flex items-center">
             <div className="flex-shrink-0 flex items-center">
-              <Link href="/">
-                <a className="text-2xl font-bold">
-                  <span className="text-brand-blue">Video</span>
-                  <span className="text-brand-orange">Share</span>
-                </a>
+              <Link href="/" className="text-2xl font-bold">
+                <span className="text-brand-blue">Video</span>
+                <span className="text-brand-orange">Share</span>
               </Link>
             </div>
             <nav className="hidden md:ml-6 md:flex md:space-x-8">
-              <Link href="/">
-                <a className={`${location === "/" ? "border-brand-blue text-gray-900" : "border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700"} inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium`}>
-                  Home
-                </a>
+              <Link 
+                href="/"
+                className={`${location === "/" ? "border-brand-blue text-gray-900" : "border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700"} inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium`}
+              >
+                Home
               </Link>
-              <Link href="/?category=All">
-                <a className={`${location.includes("category=All") ? "border-brand-blue text-gray-900" : "border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700"} inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium`}>
-                  Explore
-                </a>
+              <Link 
+                href="/?category=All"
+                className={`${location.includes("category=All") ? "border-brand-blue text-gray-900" : "border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700"} inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium`}
+              >
+                Explore
               </Link>
               {user?.isAdmin && (
-                <Link href="/admin">
-                  <a className={`${location === "/admin" ? "border-brand-blue text-gray-900" : "border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700"} inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium`}>
-                    Admin
-                  </a>
+                <Link 
+                  href="/admin"
+                  className={`${location === "/admin" ? "border-brand-blue text-gray-900" : "border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700"} inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium`}
+                >
+                  Admin
                 </Link>
               )}
             </nav>
@@ -96,15 +97,15 @@ export default function Header() {
               </SheetTrigger>
               <SheetContent>
                 <div className="flex flex-col gap-4 mt-4">
-                  <Link href="/">
-                    <a className="text-lg font-medium">Home</a>
+                  <Link href="/" className="text-lg font-medium">
+                    Home
                   </Link>
-                  <Link href="/?category=All">
-                    <a className="text-lg font-medium">Explore</a>
+                  <Link href="/?category=All" className="text-lg font-medium">
+                    Explore
                   </Link>
                   {user?.isAdmin && (
-                    <Link href="/admin">
-                      <a className="text-lg font-medium">Admin</a>
+                    <Link href="/admin" className="text-lg font-medium">
+                      Admin
                     </Link>
                   )}
                   {user ? (
@@ -153,17 +154,17 @@ export default function Header() {
                       </DropdownMenuItem>
                       <DropdownMenuSeparator />
                       {user.isAdmin && (
-                        <Link href="/admin">
-                          <DropdownMenuItem>
+                        <DropdownMenuItem asChild>
+                          <Link href="/admin">
                             Admin Panel
-                          </DropdownMenuItem>
-                        </Link>
-                      )}
-                      <Link href="/change-password">
-                        <DropdownMenuItem>
-                          Change Password
+                          </Link>
                         </DropdownMenuItem>
-                      </Link>
+                      )}
+                      <DropdownMenuItem asChild>
+                        <Link href="/change-password">
+                          Change Password
+                        </Link>
+                      </DropdownMenuItem>
                       <DropdownMenuItem onClick={handleLogout}>
                         Logout
                       </DropdownMenuItem>
