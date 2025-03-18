@@ -88,6 +88,20 @@ export const embedVideoSchema = z.object({
   isEmbedded: z.literal(true),
 });
 
+// Theme customization schema
+export const themeSchema = z.object({
+  primaryColor: z.string().default('#3b82f6'),
+  secondaryColor: z.string().default('#f97316'),
+  accentColor: z.string().default('#8b5cf6'),
+  logoText: z.string().default('VideoShare'),
+  logoUrl: z.string().nullable().default(null),
+  borderRadius: z.number().min(0).max(2).default(0.5),
+  enableAds: z.boolean().default(false),
+  darkMode: z.boolean().default(false),
+});
+
+export type ThemeSettings = z.infer<typeof themeSchema>;
+
 // Default categories
 export const DEFAULT_CATEGORIES = [
   "All",

@@ -104,9 +104,14 @@ export default function Header() {
                     Explore
                   </Link>
                   {user?.isAdmin && (
-                    <Link href="/admin" className="text-lg font-medium">
-                      Admin
-                    </Link>
+                    <>
+                      <Link href="/admin" className="text-lg font-medium">
+                        Admin
+                      </Link>
+                      <Link href="/customize" className="text-lg font-medium">
+                        Customize Site
+                      </Link>
+                    </>
                   )}
                   {user ? (
                     <>
@@ -154,11 +159,18 @@ export default function Header() {
                       </DropdownMenuItem>
                       <DropdownMenuSeparator />
                       {user.isAdmin && (
-                        <DropdownMenuItem asChild>
-                          <Link href="/admin">
-                            Admin Panel
-                          </Link>
-                        </DropdownMenuItem>
+                        <>
+                          <DropdownMenuItem asChild>
+                            <Link href="/admin">
+                              Admin Panel
+                            </Link>
+                          </DropdownMenuItem>
+                          <DropdownMenuItem asChild>
+                            <Link href="/customize">
+                              Customize Site
+                            </Link>
+                          </DropdownMenuItem>
+                        </>
                       )}
                       <DropdownMenuItem asChild>
                         <Link href="/change-password">

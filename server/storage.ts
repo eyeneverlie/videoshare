@@ -1,7 +1,8 @@
 import { 
   User, InsertUser, 
   Video, InsertVideo, 
-  Category, InsertCategory, 
+  Category, InsertCategory,
+  ThemeSettings, themeSchema,
   DEFAULT_CATEGORIES 
 } from "@shared/schema";
 
@@ -27,6 +28,10 @@ export interface IStorage {
   // Category operations
   getAllCategories(): Promise<Category[]>;
   createCategory(category: InsertCategory): Promise<Category>;
+
+  // Theme operations
+  getThemeSettings(): Promise<ThemeSettings>;
+  updateThemeSettings(settings: Partial<ThemeSettings>): Promise<ThemeSettings>;
 }
 
 export class MemStorage implements IStorage {
