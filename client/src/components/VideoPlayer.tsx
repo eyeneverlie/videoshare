@@ -3,6 +3,7 @@ import { Video } from "@shared/schema";
 import { Play, Pause, Volume2, VolumeX, Maximize, X } from "lucide-react";
 import { Slider } from "@/components/ui/slider";
 import { apiRequest } from "@/lib/queryClient";
+import { useMutation, useQuery } from "@tanstack/react-query";
 
 interface VideoPlayerProps {
   video: Video;
@@ -18,9 +19,37 @@ export default function VideoPlayer({ video, onClose }: VideoPlayerProps) {
   const [currentTime, setCurrentTime] = useState(0);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [showControls, setShowControls] = useState(true);
+  const [embedUrl, setEmbedUrl] = useState<string | null>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
   const playerRef = useRef<HTMLDivElement>(null);
   const controlsTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  
+  // Fetch embed URL if this is an embedded video
+  const { data: embedData } = useQuery({
+    queryKey: ['/api/stream', video.id],
+    queryFn: async () => {
+      if (video.isEmbedded) {
+        const response = await fetch(`/api/stream/${video.id}`);
+        if (!response.ok) {
+          throw new Error('Failed to fetch embed URL');
+        }
+        return response.json();
+      }
+      return null;
+    },
+    enabled: !!video.isEmbedded,
+    onSuccess: (data) => {
+      if (data?.embedUrl) {
+        setEmbedUrl(data.embedUrl);
+        
+        // Update view count for embedded videos
+        if (!sessionStorage.getItem(`video-${video.id}-viewed`)) {
+          apiRequest('POST', `/api/videos/${video.id}/views`);
+          sessionStorage.setItem(`video-${video.id}-viewed`, 'true');
+        }
+      }
+    }
+  });
 
   // Format time as MM:SS
   const formatTime = (time: number) => {
@@ -127,6 +156,55 @@ export default function VideoPlayer({ video, onClose }: VideoPlayerProps) {
     };
   }, []);
 
+  // For embedded videos, we just render an iframe
+  if (video.isEmbedded) {
+    // If still loading the embed URL
+    if (!embedUrl) {
+      return (
+        <div 
+          ref={playerRef}
+          className="flex items-center justify-center relative rounded-lg overflow-hidden bg-black aspect-video w-full"
+        >
+          <div className="text-white">Loading embedded video...</div>
+          {onClose && (
+            <button 
+              onClick={onClose} 
+              className="absolute top-4 right-4 text-white p-1 hover:bg-white/20 rounded-full z-10"
+            >
+              <X className="h-5 w-5" />
+            </button>
+          )}
+        </div>
+      );
+    }
+    
+    // Show iframe with embedded video
+    return (
+      <div 
+        ref={playerRef}
+        className="relative rounded-lg overflow-hidden bg-black aspect-video w-full"
+      >
+        <iframe
+          src={embedUrl}
+          className="w-full h-full"
+          frameBorder="0"
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+          allowFullScreen
+          title={video.title}
+        />
+        {onClose && (
+          <button 
+            onClick={onClose} 
+            className="absolute top-4 right-4 text-white p-1 hover:bg-white/20 rounded-full z-10"
+          >
+            <X className="h-5 w-5" />
+          </button>
+        )}
+      </div>
+    );
+  }
+  
+  // For uploaded videos, we use our custom player
   return (
     <div 
       ref={playerRef}
@@ -138,7 +216,7 @@ export default function VideoPlayer({ video, onClose }: VideoPlayerProps) {
         ref={videoRef}
         className="w-full h-full"
         src={`/api/stream/${video.id}`}
-        poster={video.thumbnailPath || `https://picsum.photos/seed/${video.id}/800/450`}
+        poster={video.thumbnailPath || undefined}
         onPlay={handlePlay}
         onPause={handlePause}
         onTimeUpdate={handleTimeUpdate}
