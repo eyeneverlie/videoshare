@@ -113,6 +113,11 @@ export default function Header() {
                         <Upload className="mr-2 h-4 w-4" />
                         Upload
                       </Button>
+                      <Link href="/change-password">
+                        <Button variant="secondary" className="w-full mb-2">
+                          Change Password
+                        </Button>
+                      </Link>
                       <Button variant="outline" onClick={handleLogout}>
                         Logout
                       </Button>
@@ -154,6 +159,11 @@ export default function Header() {
                           </DropdownMenuItem>
                         </Link>
                       )}
+                      <Link href="/change-password">
+                        <DropdownMenuItem>
+                          Change Password
+                        </DropdownMenuItem>
+                      </Link>
                       <DropdownMenuItem onClick={handleLogout}>
                         Logout
                       </DropdownMenuItem>

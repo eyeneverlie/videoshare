@@ -9,6 +9,7 @@ import Home from "@/pages/Home";
 import VideoPage from "@/pages/VideoPage";
 import Admin from "@/pages/Admin";
 import Login from "@/pages/Login";
+import ChangePassword from "@/pages/ChangePassword";
 import NotFound from "@/pages/not-found";
 
 function Router() {
@@ -20,6 +21,7 @@ function Router() {
       <Route path="/video/:id" component={VideoPage} />
       <Route path="/admin" component={Admin} />
       <Route path="/login" component={Login} />
+      <Route path="/change-password" component={ChangePassword} />
       <Route component={NotFound} />
     </Switch>
   );
