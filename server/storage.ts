@@ -38,6 +38,7 @@ export class MemStorage implements IStorage {
   private users: Map<number, User>;
   private videos: Map<number, Video>;
   private categories: Map<number, Category>;
+  private themeSettings: ThemeSettings;
   private nextUserId: number;
   private nextVideoId: number;
   private nextCategoryId: number;
@@ -49,6 +50,18 @@ export class MemStorage implements IStorage {
     this.nextUserId = 1;
     this.nextVideoId = 1;
     this.nextCategoryId = 1;
+    
+    // Initialize theme settings with defaults
+    this.themeSettings = themeSchema.parse({
+      primaryColor: '#3b82f6',
+      secondaryColor: '#f97316',
+      accentColor: '#8b5cf6',
+      logoText: 'VideoShare',
+      logoUrl: null,
+      borderRadius: 0.5,
+      enableAds: false,
+      darkMode: false
+    });
 
     // Create admin user
     this.createUser({
@@ -61,6 +74,16 @@ export class MemStorage implements IStorage {
     DEFAULT_CATEGORIES.forEach(name => {
       this.createCategory({ name });
     });
+  }
+  
+  // Theme methods
+  async getThemeSettings(): Promise<ThemeSettings> {
+    return { ...this.themeSettings };
+  }
+
+  async updateThemeSettings(settings: Partial<ThemeSettings>): Promise<ThemeSettings> {
+    this.themeSettings = { ...this.themeSettings, ...settings };
+    return { ...this.themeSettings }; 
   }
 
   // User methods

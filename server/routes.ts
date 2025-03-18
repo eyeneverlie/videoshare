@@ -6,7 +6,7 @@ import path from "path";
 import { fileURLToPath } from "url";
 import multer from "multer";
 import { v4 as uuidv4 } from "uuid";
-import { insertVideoSchema, loginSchema, passwordChangeSchema, User, embedVideoSchema } from "@shared/schema";
+import { insertVideoSchema, loginSchema, passwordChangeSchema, User, embedVideoSchema, themeSchema, ThemeSettings } from "@shared/schema";
 import { z } from "zod";
 import session from "express-session";
 import { log } from "./vite";
@@ -414,6 +414,46 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       log(`Admin get users error: ${error}`);
       res.status(500).json({ message: "Error retrieving users" });
+    }
+  });
+
+  // Theme customization routes
+  apiRouter.get('/theme', async (req, res) => {
+    try {
+      const themeSettings = await storage.getThemeSettings();
+      res.json(themeSettings);
+    } catch (error) {
+      log(`Get theme settings error: ${error}`);
+      res.status(500).json({ message: "Error retrieving theme settings" });
+    }
+  });
+
+  apiRouter.put('/theme', requireAdmin, async (req, res) => {
+    try {
+      // Validate theme settings
+      const updatedSettings = themeSchema.parse(req.body);
+      const themeSettings = await storage.updateThemeSettings(updatedSettings);
+      res.json(themeSettings);
+    } catch (error) {
+      log(`Update theme settings error: ${error}`);
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ message: "Validation error", errors: error.errors });
+      }
+      res.status(500).json({ message: "Error updating theme settings" });
+    }
+  });
+
+  apiRouter.post('/theme/preview', requireAdmin, async (req, res) => {
+    try {
+      // Just return the preview settings without saving them
+      const previewSettings = themeSchema.parse(req.body);
+      res.json(previewSettings);
+    } catch (error) {
+      log(`Theme preview error: ${error}`);
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ message: "Validation error", errors: error.errors });
+      }
+      res.status(500).json({ message: "Error creating theme preview" });
     }
   });
 
