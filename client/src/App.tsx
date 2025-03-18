@@ -10,6 +10,7 @@ import VideoPage from "@/pages/VideoPage";
 import Admin from "@/pages/Admin";
 import Login from "@/pages/Login";
 import ChangePassword from "@/pages/ChangePassword";
+import Customize from "@/pages/Customize";
 import NotFound from "@/pages/not-found";
 
 function Router() {
@@ -22,6 +23,7 @@ function Router() {
       <Route path="/admin" component={Admin} />
       <Route path="/login" component={Login} />
       <Route path="/change-password" component={ChangePassword} />
+      <Route path="/customize" component={Customize} />
       <Route component={NotFound} />
     </Switch>
   );
