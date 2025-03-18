@@ -18,6 +18,7 @@ export interface IStorage {
   getAllVideos(): Promise<Video[]>;
   getVideosByCategory(category: string): Promise<Video[]>;
   createVideo(video: InsertVideo): Promise<Video>;
+  createEmbeddedVideo(video: InsertVideo): Promise<Video>;
   updateVideo(id: number, updates: Partial<InsertVideo>): Promise<Video | undefined>;
   deleteVideo(id: number): Promise<boolean>;
   incrementViews(id: number): Promise<Video | undefined>;
@@ -114,7 +115,24 @@ export class MemStorage implements IStorage {
       ...insertVideo, 
       id, 
       views: 0,
-      uploadDate: now 
+      uploadDate: now,
+      isEmbedded: false
+    };
+    this.videos.set(id, video);
+    return video;
+  }
+  
+  async createEmbeddedVideo(insertVideo: InsertVideo): Promise<Video> {
+    const id = this.nextVideoId++;
+    const now = new Date();
+    const video: Video = { 
+      ...insertVideo, 
+      id, 
+      views: 0,
+      uploadDate: now,
+      isEmbedded: true,
+      fileName: null,
+      filePath: null
     };
     this.videos.set(id, video);
     return video;

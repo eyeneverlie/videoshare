@@ -21,8 +21,10 @@ export const videos = pgTable("videos", {
   id: serial("id").primaryKey(),
   title: text("title").notNull(),
   description: text("description"),
-  fileName: text("file_name").notNull(),
-  filePath: text("file_path").notNull(),
+  fileName: text("file_name"),
+  filePath: text("file_path"),
+  embedUrl: text("embed_url"),
+  isEmbedded: boolean("is_embedded").default(false),
   thumbnailPath: text("thumbnail_path"),
   category: text("category"),
   uploaderId: integer("uploader_id").notNull(),
@@ -75,7 +77,15 @@ export const passwordChangeSchema = z.object({
 export const videoUploadSchema = insertVideoSchema.extend({
   file: z.custom<File>((val) => val instanceof File, {
     message: "Please upload a valid video file",
-  }),
+  }).optional(),
+});
+
+export const embedVideoSchema = z.object({
+  title: z.string().min(1, { message: "Title is required" }),
+  description: z.string().optional(),
+  embedUrl: z.string().url({ message: "Please enter a valid URL" }),
+  category: z.string().optional(),
+  isEmbedded: z.literal(true),
 });
 
 // Default categories

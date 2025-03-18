@@ -6,7 +6,7 @@ import path from "path";
 import { fileURLToPath } from "url";
 import multer from "multer";
 import { v4 as uuidv4 } from "uuid";
-import { insertVideoSchema, loginSchema, passwordChangeSchema, User } from "@shared/schema";
+import { insertVideoSchema, loginSchema, passwordChangeSchema, User, embedVideoSchema } from "@shared/schema";
 import { z } from "zod";
 import session from "express-session";
 import { log } from "./vite";
@@ -246,6 +246,25 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(500).json({ message: "Error uploading video" });
     }
   });
+  
+  // Embedded video route
+  apiRouter.post('/videos/embed', requireAuth, validateRequest(embedVideoSchema), async (req, res) => {
+    try {
+      const embedData = {
+        ...req.body,
+        uploaderId: req.session.user.id,
+      };
+      
+      const video = await storage.createEmbeddedVideo(embedData);
+      res.status(201).json(video);
+    } catch (error) {
+      log(`Embed video error: ${error}`);
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ message: "Validation error", errors: error.errors });
+      }
+      res.status(500).json({ message: "Error embedding video" });
+    }
+  });
 
   apiRouter.put('/videos/:id', requireAuth, async (req, res) => {
     try {
@@ -285,8 +304,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       await storage.deleteVideo(id);
       
-      // Delete the file from the filesystem
-      if (fs.existsSync(video.filePath)) {
+      // Delete the file from the filesystem if it's not an embedded video
+      if (!video.isEmbedded && video.filePath && fs.existsSync(video.filePath)) {
         fs.unlinkSync(video.filePath);
       }
       
@@ -319,8 +338,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const id = parseInt(req.params.id);
       const video = await storage.getVideo(id);
       
-      if (!video || !fs.existsSync(video.filePath)) {
+      if (!video) {
         return res.status(404).json({ message: "Video not found" });
+      }
+      
+      // If this is an embedded video, redirect to the embed URL
+      if (video.isEmbedded && video.embedUrl) {
+        return res.json({ embedUrl: video.embedUrl });
+      }
+      
+      // For uploaded videos, stream the file
+      if (!video.filePath || !fs.existsSync(video.filePath)) {
+        return res.status(404).json({ message: "Video file not found" });
       }
 
       const stat = fs.statSync(video.filePath);
