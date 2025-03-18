@@ -63,6 +63,15 @@ export const loginSchema = z.object({
   password: z.string().min(6, { message: "Password must be at least 6 characters" }),
 });
 
+export const passwordChangeSchema = z.object({
+  currentPassword: z.string().min(1, { message: "Current password is required" }),
+  newPassword: z.string().min(6, { message: "New password must be at least 6 characters" }),
+  confirmPassword: z.string().min(6, { message: "Confirm password must be at least 6 characters" }),
+}).refine((data) => data.newPassword === data.confirmPassword, {
+  message: "Passwords don't match",
+  path: ["confirmPassword"],
+});
+
 export const videoUploadSchema = insertVideoSchema.extend({
   file: z.custom<File>((val) => val instanceof File, {
     message: "Please upload a valid video file",

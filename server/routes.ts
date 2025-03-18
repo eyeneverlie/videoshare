@@ -6,7 +6,7 @@ import path from "path";
 import { fileURLToPath } from "url";
 import multer from "multer";
 import { v4 as uuidv4 } from "uuid";
-import { insertVideoSchema, loginSchema, User } from "@shared/schema";
+import { insertVideoSchema, loginSchema, passwordChangeSchema, User } from "@shared/schema";
 import { z } from "zod";
 import session from "express-session";
 import { log } from "./vite";
@@ -150,6 +150,38 @@ export async function registerRoutes(app: Express): Promise<Server> {
         isAdmin: req.session.user.isAdmin
       }
     });
+  });
+
+  apiRouter.post('/auth/change-password', requireAuth, validateRequest(passwordChangeSchema), async (req, res) => {
+    try {
+      const { currentPassword, newPassword } = req.body;
+      const userId = req.session.user.id;
+      
+      // Get current user
+      const user = await storage.getUser(userId);
+      
+      if (!user) {
+        return res.status(404).json({ message: "User not found" });
+      }
+      
+      // Verify current password
+      if (user.password !== currentPassword) {
+        return res.status(400).json({ message: "Current password is incorrect" });
+      }
+      
+      // Update password
+      const updatedUser = await storage.updateUserPassword(userId, newPassword);
+      
+      // Update session with new user info
+      if (updatedUser) {
+        req.session.user = updatedUser;
+      }
+      
+      return res.json({ message: "Password updated successfully" });
+    } catch (error) {
+      log(`Change password error: ${error}`);
+      return res.status(500).json({ message: "Error changing password" });
+    }
   });
 
   // Video routes
