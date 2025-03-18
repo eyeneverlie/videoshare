@@ -9,7 +9,7 @@ import { SketchPicker } from "react-color";
 import { useToast } from "@/hooks/use-toast";
 import { Slider } from "@/components/ui/slider";
 import { Switch } from "@/components/ui/switch";
-import { apiRequest } from "@/lib/queryClient";
+// Import removed as we're using fetch directly
 import { ThemeSettings } from "@shared/schema";
 import { Redirect } from "wouter";
 
@@ -105,11 +105,16 @@ export default function Customize() {
         setOriginalSettings(settings);
       }
       
-      await apiRequest<ThemeSettings>({
-        url: "/api/theme/preview",
+      const response = await fetch("/api/theme/preview", {
         method: "POST",
-        body: JSON.stringify(settings)
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(settings),
+        credentials: "include",
       });
+      
+      if (!response.ok) {
+        throw new Error('Failed to preview theme settings');
+      }
       
       // Apply CSS variables to preview theme
       applyThemeSettings(settings);
